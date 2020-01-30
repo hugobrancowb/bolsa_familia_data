@@ -1,0 +1,7 @@
+# Ignore data files created by the code
+data/
+
+# ignore python cache folder
+__pycache__/
+
+.vscode/
