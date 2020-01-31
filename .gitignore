@@ -1,6 +1,11 @@
 # Ignore data files created by the code
 data/
 
+# Ignore node modules
+node_modules/
+
+package*
+
 # ignore python cache folder
 __pycache__/
 
