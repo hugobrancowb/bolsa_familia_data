@@ -13,44 +13,61 @@ function Entry_data(month, uf, city, total) {
 
 /* Functions */
 async function main() {
-    const url = 'http://www.portaldatransparencia.gov.br/beneficios/consulta?paginacaoSimples=true&tamanhoPagina=&offset=&direcaoOrdenacao=asc&de=01%2F10%2F2019&ate=31%2F10%2F2019&tipoBeneficio=1&colunasSelecionadas=linkDetalhamento%2ClinguagemCidada%2CmesAno%2Cuf%2Cmunicipio%2Cvalor&ordenarPor=mesAno&direcao=desc';
+    var list = [];
+    var month = ['01', '02'];
+    for (let i = 0; i < month.length; i++) {
+        console.log('Mês: '+ month[i]);
+        list_temp = await get_from_date(month[i], 2019);
+        list.push(...list_temp);
+    }
+    console.log('tamanho total: ' + list.length);
+    
+    var jsonData = JSON.stringify(list);
+    var fs = require('fs');
+    fs.writeFile("data/data.json", jsonData, function(err) {
+        if (err) {
+            console.log(err);
+        }
+    });
+}
+
+async function get_from_date(month, year) {
+    const url = 'http://www.portaldatransparencia.gov.br/beneficios/consulta?paginacaoSimples=true&tamanhoPagina=&offset=&direcaoOrdenacao=asc&de=01%2F' + month + '%2F' + year + '&ate=28%2F' + month + '%2F' + year + '&tipoBeneficio=1&colunasSelecionadas=linkDetalhamento%2ClinguagemCidada%2CmesAno%2Cuf%2Cmunicipio%2Cvalor&ordenarPor=mesAno&direcao=desc';
 
     puppeteerExtra.use(pluginStealth());
-	const browser = await puppeteerExtra.launch({slowMo: 10});
+	const browser = await puppeteerExtra.launch({slowMo: 10, headless: false});
     const page = await browser.newPage();
     try { 
-        await page.goto(url, {waitUntil: 'load', timeout: 60000});
+        await page.goto(url, {waitUntil: 'load', timeout: 90000});
     } catch (error) {
         browser.close();
         console.log(error);
     }
-    await page.waitForSelector('#lista tbody tr');
-    let html = await page.content();
-    let listaobj = []
-    let pages = 0;
+    var pages = 0;
+    var list = [];
     
     while (true) {
-        await page.waitFor(1500);
-        let lista_temp = await scrape_page(html);
-        listaobj.push(...lista_temp);
+        await page.waitFor(2000);
+        var html = await page.content();
+        var list_temp = await scrape_page(html);
+        list.push(...list_temp);
         pages += 1;
+        console.log(pages + ' - ' + list.length);
         
         const next_button = '#lista_paginate ul.pagination > li:nth-child(2)';
         await page.waitForSelector(next_button + ' a');
-        const next_flag = $(next_button, html).hasClass('disabled');
-        if ((!next_flag) && (pages < 10)) {
+        const next_flag = await $(next_button, html).hasClass('disabled');
+        if ((!next_flag) && (pages < 2)) {
             try {
                 await page.click(next_button + ' a');
-                await page.waitForSelector('#lista tbody tr');
-                html = await page.content();
             } catch (error) {
                 console.log(error);
             }
         } else { break; }
     }
-    
-    console.log(listaobj.length);
+
     browser.close();
+    return list;
 }
 
 async function scrape_page(html) {
@@ -72,13 +89,12 @@ async function scrape_page(html) {
         const c = $(city[i]).text();
         const t = parseFloat(t_temp);
 
-        // console.log(t);
         lista.push(new Entry_data(m, s, c, t));
     }
     
     return lista;
 }
 
-/* * * * * * * * * * * * * */
+/* * * * */
 
 main();
