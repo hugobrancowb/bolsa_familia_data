@@ -1,4 +1,6 @@
 const puppeteer = require('puppeteer');
+const puppeteerExtra = require('puppeteer-extra');
+const pluginStealth = require('puppeteer-extra-plugin-stealth');
 const $ = require('cheerio');
 
 /* Objects */
@@ -13,28 +15,41 @@ function Entry_data(month, uf, city, total) {
 async function main() {
     const url = 'http://www.portaldatransparencia.gov.br/beneficios/consulta?paginacaoSimples=true&tamanhoPagina=&offset=&direcaoOrdenacao=asc&de=01%2F10%2F2019&ate=31%2F10%2F2019&tipoBeneficio=1&colunasSelecionadas=linkDetalhamento%2ClinguagemCidada%2CmesAno%2Cuf%2Cmunicipio%2Cvalor&ordenarPor=mesAno&direcao=desc';
 
-    const browser = await puppeteer.launch();
+    puppeteerExtra.use(pluginStealth());
+	const browser = await puppeteerExtra.launch({slowMo: 10});
     const page = await browser.newPage();
-    // await page.goto(url, { waitUntil: 'networkidle0' });
-    await page.goto(url);
-    await page.waitForSelector('#lista tbody tr');
-    // await page.waitFor(2000);
-    const html = await page.content();
-    
-    listaobj = await scrape_page(html);
-    console.log(listaobj.length);
-    
-    next_button = '#lista_paginate ul.pagination > li:nth-child(2)';
-    next_flag = await $('#lista_paginate ul.pagination > li:nth-child(2)', html).hasClass('disabled');
-
-    if (!next_flag) {
-        await page.click(next_button + ' a');
-        await page.waitForSelector('#lista tbody tr');
-        const html2 = await page.content();
-        listaobj = await scrape_page(html2);
-        console.log(listaobj.length);
+    try { 
+        await page.goto(url, {waitUntil: 'load', timeout: 60000});
+    } catch (error) {
+        browser.close();
+        console.log(error);
     }
-
+    await page.waitForSelector('#lista tbody tr');
+    let html = await page.content();
+    let listaobj = []
+    let pages = 0;
+    
+    while (true) {
+        await page.waitFor(1500);
+        let lista_temp = await scrape_page(html);
+        listaobj.push(...lista_temp);
+        pages += 1;
+        
+        const next_button = '#lista_paginate ul.pagination > li:nth-child(2)';
+        await page.waitForSelector(next_button + ' a');
+        const next_flag = $(next_button, html).hasClass('disabled');
+        if ((!next_flag) && (pages < 10)) {
+            try {
+                await page.click(next_button + ' a');
+                await page.waitForSelector('#lista tbody tr');
+                html = await page.content();
+            } catch (error) {
+                console.log(error);
+            }
+        } else { break; }
+    }
+    
+    console.log(listaobj.length);
     browser.close();
 }
 
@@ -57,7 +72,7 @@ async function scrape_page(html) {
         const c = $(city[i]).text();
         const t = parseFloat(t_temp);
 
-        console.log(t);
+        // console.log(t);
         lista.push(new Entry_data(m, s, c, t));
     }
     
