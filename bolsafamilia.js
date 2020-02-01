@@ -22,6 +22,10 @@ async function main() {
     }
     console.log('tamanho total: ' + list.length);
     
+    save_json_file(list);    
+}
+
+function save_json_file(list) {
     var jsonData = JSON.stringify(list);
     var fs = require('fs');
     fs.writeFile("data/data.json", jsonData, function(err) {
