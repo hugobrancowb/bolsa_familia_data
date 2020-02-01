@@ -5,6 +5,7 @@ const $ = require('cheerio');
 
 /* Objects */
 function Entry_data(month, uf, city, total) {
+    // assign values for object
     this.month = month;
     this.uf = uf;
     this.city = city;
@@ -14,21 +15,21 @@ function Entry_data(month, uf, city, total) {
 /* Functions */
 async function main() {
     var list = [];
-    var month = ['01', '02'];
+    var month = ['01', '02']; // all months which data will be gathered from
     for (let i = 0; i < month.length; i++) {
-        console.log('Mês: '+ month[i]);
-        list_temp = await get_from_date(month[i], 2019);
+        console.log('Mês: '+ month[i]); // pode apagar
+        list_temp = await get_from_date(month[i], 2019); // returns a list of entries from the pages
         list.push(...list_temp);
     }
-    console.log('tamanho total: ' + list.length);
     
-    save_json_file(list);    
+    save_json_file(list, 'alldata');
+    console.log('tamanho total: ' + list.length); // pode apagar
 }
 
-function save_json_file(list) {
+function save_json_file(list, name) {
     var jsonData = JSON.stringify(list);
     var fs = require('fs');
-    fs.writeFile("data/data.json", jsonData, function(err) {
+    fs.writeFile("data/" + name + ".json", jsonData, function(err) {
         if (err) {
             console.log(err);
         }
@@ -38,8 +39,11 @@ function save_json_file(list) {
 async function get_from_date(month, year) {
     const url = 'http://www.portaldatransparencia.gov.br/beneficios/consulta?paginacaoSimples=true&tamanhoPagina=&offset=&direcaoOrdenacao=asc&de=01%2F' + month + '%2F' + year + '&ate=28%2F' + month + '%2F' + year + '&tipoBeneficio=1&colunasSelecionadas=linkDetalhamento%2ClinguagemCidada%2CmesAno%2Cuf%2Cmunicipio%2Cvalor&ordenarPor=mesAno&direcao=desc';
 
-    puppeteerExtra.use(pluginStealth());
-	const browser = await puppeteerExtra.launch({slowMo: 10, headless: false});
+    puppeteerExtra.use(pluginStealth()); // incognito mode
+    const browser = await puppeteerExtra.launch({
+        slowMo: 10, // delays requests, preventing host to block puppeteer
+        headless: false // shows browser window
+    });
     const page = await browser.newPage();
     try { 
         await page.goto(url, {waitUntil: 'load', timeout: 90000});
@@ -56,7 +60,7 @@ async function get_from_date(month, year) {
         var list_temp = await scrape_page(html);
         list.push(...list_temp);
         pages += 1;
-        console.log(pages + ' - ' + list.length);
+        console.log(pages + ' - ' + list.length); // pode apagar
         
         const next_button = '#lista_paginate ul.pagination > li:nth-child(2)';
         await page.waitForSelector(next_button + ' a');
