@@ -15,21 +15,23 @@ function Entry_data(month, uf, city, total) {
 /* Functions */
 async function main() {
     var list = [];
-    var month = ['01', '02']; // all months which data will be gathered from
+    var year = 2018;
+    var month = ['02', '03']; // all months which data will be gathered from
+    
     for (let i = 0; i < month.length; i++) {
         console.log('Mês: '+ month[i]); // pode apagar
-        list_temp = await get_from_date(month[i], 2019); // returns a list of entries from the pages
-        list.push(...list_temp);
+        list_temp = await get_from_date(month[i], year); // returns a list of entries from the pages
+        list.push(...list_temp);        
     }
     
-    save_json_file(list, 'alldata');
     console.log('tamanho total: ' + list.length); // pode apagar
 }
 
 function save_json_file(list, name) {
     var jsonData = JSON.stringify(list);
     var fs = require('fs');
-    fs.writeFile("data/" + name + ".json", jsonData, function(err) {
+    
+    fs.writeFile("data/raw/" + name + ".json", jsonData, function(err) {
         if (err) {
             console.log(err);
         }
@@ -43,7 +45,7 @@ async function get_from_date(month, year) {
     const browser = await puppeteerExtra.launch({
         slowMo: 10, // delays requests, preventing host to block puppeteer
         headless: false // shows browser window
-    });
+    });    
     const page = await browser.newPage();
     try { 
         await page.goto(url, {waitUntil: 'load', timeout: 90000});
@@ -51,7 +53,8 @@ async function get_from_date(month, year) {
         browser.close();
         console.log(error);
     }
-    var pages = 0;
+
+    var pages = 1;
     var list = [];
     
     while (true) {
@@ -59,12 +62,17 @@ async function get_from_date(month, year) {
         var html = await page.content();
         var list_temp = await scrape_page(html);
         list.push(...list_temp);
-        pages += 1;
-        console.log(pages + ' - ' + list.length); // pode apagar
         
+        let filename = year + '_' + month + '_' + 'page' + pages;
+        save_json_file(list_temp, filename);
+        pages += 1;
+        
+        console.log(pages + ' - ' + list.length); // pode apagar
+
         const next_button = '#lista_paginate ul.pagination > li:nth-child(2)';
         await page.waitForSelector(next_button + ' a');
         const next_flag = await $(next_button, html).hasClass('disabled');
+       
         if ((!next_flag) && (pages < 2)) {
             try {
                 await page.click(next_button + ' a');
