@@ -12,12 +12,12 @@ fs.readdirSync(dir).forEach(arq => {
     files.push(arq);
 });
 
-/* usar map no lugar de for */
-for (let i = 0; i < files.length; i++) {
-    var contents = fs.readFileSync(dir + files[i]);
+files.map(el => {
+    var contents = fs.readFileSync(dir + el);
     jsonContent = JSON.parse(contents);
+    /* TODO: check if entry is already inside vector to avoid known problems with mining */
     alldata.push(...jsonContent);
-}
+});
 save_json_file(alldata, '../alldata')
 
 /* Functions */
