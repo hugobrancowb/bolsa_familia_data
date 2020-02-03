@@ -20,7 +20,9 @@ async function main() {
     
     for (let i = 0; i < month.length; i++) {
         console.log('Mês: '+ month[i]); // pode apagar
+        console.time('tempo total: ' + month[i]+'_'+year);
         list_temp = await get_from_date(month[i], year); // returns a list of entries from the pages
+        console.timeEnd('tempo total: ' + month[i] + '_' + year);
         list.push(...list_temp);        
     }
     
