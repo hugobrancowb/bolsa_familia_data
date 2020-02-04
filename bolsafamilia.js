@@ -12,8 +12,7 @@ function Entry_data(year, uf, city, total) {
 
 /* Functions */
 async function main() {
-    var list = [];
-    var year = ['2019']; // all years which data will be gathered from
+    var year = ['2018']; // all years which data will be gathered from
     
     for (let i = 0; i < year.length; i++) {
         console.log('Ano: '+ year[i]); // pode apagar
@@ -21,8 +20,6 @@ async function main() {
         await get_from_date(year[i]); // returns a list of entries from the pages
         console.timeEnd('tempo total: ' + '_' + year[i]);
     }
-    
-    console.log('tamanho total: ' + list.length); // pode apagar
 }
 
 function save_json_file(list, name) {
@@ -38,7 +35,6 @@ function save_json_file(list, name) {
 
 async function get_from_date(year) {
     const url = 'http://www.portaldatransparencia.gov.br/beneficios/consulta?paginacaoSimples=true&tamanhoPagina=&offset=&direcaoOrdenacao=asc&de=01%2F01%2F' + year + '&ate=31%2F12%2F' + year + '&tipoBeneficio=1&colunasSelecionadas=linkDetalhamento%2ClinguagemCidada%2CmesAno%2Cuf%2Cmunicipio%2Cvalor&ordenarPor=mesAno&direcao=desc';
-    // const url = 'http://www.portaldatransparencia.gov.br/beneficios/consulta?paginacaoSimples=true&tamanhoPagina=&offset=&direcaoOrdenacao=asc&de=01%2F01%2F2015&ate=31%2F12%2F2015&tipoBeneficio=1&colunasSelecionadas=linkDetalhamento%2ClinguagemCidada%2CmesAno%2Cuf%2Cmunicipio%2Cvalor&ordenarPor=mesAno&direcao=desc';
 
     const browser = await puppeteer.launch({
         slowMo: 10, // delays requests, preventing host to block puppeteer
@@ -56,6 +52,7 @@ async function get_from_date(year) {
     }
 
     var pages = 1;
+    var size = 0;
     
     while (true) {
         await page.waitFor(3000);
@@ -68,7 +65,8 @@ async function get_from_date(year) {
         let filename = year + '_' + 'page' + pages;
         save_json_file(list, filename);
         
-        console.log(pages + ' - ' + list.length); // pode apagar
+        size += list.length;
+        console.log(pages + ' - ' + size);
         pages += 1;
 
         const next_flag = await $(next_button, html).hasClass('disabled');
@@ -109,7 +107,5 @@ async function scrape_page(html) {
     
     return lista;
 }
-
-/* * * * */
 
 main();

@@ -12,13 +12,13 @@ npm install puppeteer cheerio
 ```bash
 node bolsafamilia.js
 ```
-This script saves 15 entries in each file and save all `.csv` files into `data/raw/` folder.
+This script saves 15 entries in each `.json` file into `data/raw/` folder.
 
 ### Merge the data
 ```bash
 node mergedata.js
 ```
-This script merges all files from `data/raw/` folder into a single one `alldata.json`.
+This script merges all `.json` files from `data/raw/` folder into a single one called `alldata.json`.
 
 ### Plots
 ```bash
