@@ -18,9 +18,8 @@ async function main() {
     for (let i = 0; i < year.length; i++) {
         console.log('Ano: '+ year[i]); // pode apagar
         console.time('tempo total: ' + '_' + year[i]);
-        list_temp = await get_from_date(year[i]); // returns a list of entries from the pages
+        await get_from_date(year[i]); // returns a list of entries from the pages
         console.timeEnd('tempo total: ' + '_' + year[i]);
-        list.push(...list_temp);
     }
     
     console.log('tamanho total: ' + list.length); // pode apagar
@@ -57,7 +56,6 @@ async function get_from_date(year) {
     }
 
     var pages = 1;
-    var list = [];
     
     while (true) {
         await page.waitFor(3000);
@@ -65,11 +63,10 @@ async function get_from_date(year) {
         await page.waitForSelector(next_button);
 
         var html = await page.content();
-        var list_temp = await scrape_page(html);
-        list.push(...list_temp);
+        var list = await scrape_page(html);
         
         let filename = year + '_' + 'page' + pages;
-        save_json_file(list_temp, filename);
+        save_json_file(list, filename);
         
         console.log(pages + ' - ' + list.length); // pode apagar
         pages += 1;
@@ -86,7 +83,6 @@ async function get_from_date(year) {
     }
 
     browser.close();
-    return list;
 }
 
 async function scrape_page(html) {
