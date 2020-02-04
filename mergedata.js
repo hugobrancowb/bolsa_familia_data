@@ -20,22 +20,15 @@ files.map(el => {
     jsonContent.map(entry => {
         if (alldata.length > 0) {
             var flag = 0; // if true, this is new data
-            let s = entry.month.split("-");
 
             alldata.map(data => {
-                if ((entry.city == data.city) && (entry.uf == data.uf) && (entry.total == data.total) && (entry.month == data.month)) {
+                if ((entry.city == data.city) && (entry.uf == data.uf) && (entry.total == data.total) && (entry.year == data.year)) {
                     flag += 1;
-                    if ((s[0] == '2018') && (s[1] == '02')) {
-                        repeat += 1;
-                    }
                 }
             });
             
             if(flag == 0) {
                 alldata.push(entry);
-                if ((s[0] == '2018') && (s[1] == '02')) {
-                    count += 1;
-                }
             }
         } else {
             alldata.push(entry);
