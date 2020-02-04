@@ -5,8 +5,8 @@ var fs = require("fs");
 const dir = "data/raw/";
 var files = []; // name of the files inside dir
 var alldata = []; // all data gathered
-var name_of_files_read = []; // name of all the files that have been read
-var jsonContent;
+var count = 0;
+var repeat = 0;
 
 fs.readdirSync(dir).forEach(arq => {
     files.push(arq);
@@ -14,11 +14,37 @@ fs.readdirSync(dir).forEach(arq => {
 
 files.map(el => {
     var contents = fs.readFileSync(dir + el);
-    jsonContent = JSON.parse(contents);
-    /* TODO: check if entry is already inside vector to avoid known problems with mining */
-    alldata.push(...jsonContent);
+    var jsonContent = JSON.parse(contents); // there's 15 items in this object
+    
+    /* check if entry is already inside vector to avoid known problems with mining */
+    jsonContent.map(entry => {
+        if (alldata.length > 0) {
+            var flag = 0; // if true, this is new data
+            let s = entry.month.split("-");
+
+            alldata.map(data => {
+                if ((entry.city == data.city) && (entry.uf == data.uf) && (entry.total == data.total) && (entry.month == data.month)) {
+                    flag += 1;
+                    if ((s[0] == '2018') && (s[1] == '02')) {
+                        repeat += 1;
+                    }
+                }
+            });
+            
+            if(flag == 0) {
+                alldata.push(entry);
+                if ((s[0] == '2018') && (s[1] == '02')) {
+                    count += 1;
+                }
+            }
+        } else {
+            alldata.push(entry);
+        }
+    });    
 });
 save_json_file(alldata, '../alldata')
+console.log('itens: ' + count);
+console.log('repetidos: ' + repeat);
 
 /* Functions */
 function save_json_file(list, name) {
