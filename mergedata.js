@@ -15,12 +15,33 @@ fs.readdirSync(dir).forEach(arq => {
 files.map(el => {
     var contents = fs.readFileSync(dir + el);
     var jsonContent = JSON.parse(contents); // there's 15 items in this object
-    alldata.push(...jsonContent);
-    count += jsonContent.length;
+
+    jsonContent.map(entry => {
+        if (alldata.length > 0) {
+            var flag = 0; // if true, this is new data
+
+            alldata.map(data => {
+                if ((entry.city == data.city) && (entry.uf == data.uf) && (entry.total == data.total) && (entry.year == data.year)) {
+                    flag += 1;
+                }
+            });
+            
+            if(flag == 0) {
+                alldata.push(entry);
+                count += 1;
+            } else {
+                repeat += 1;
+            }
+        } else {
+            alldata.push(entry);
+            count += 1;
+        }
+    });
 });
 
 save_json_file(alldata, '../alldata');
 console.log('itens: ' + count);
+console.log('repetidos: ' + repeat);
 
 /* Functions */
 function save_json_file(list, name) {
