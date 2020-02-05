@@ -51,21 +51,27 @@ async function get_from_date(year) {
         console.log(error);
     }
 
-    await page.waitFor(10000);
-    await page.waitForSelector('select.form-control');
-    await page.select('select.form-control', '50');
+    let site = await page.content();
+    while( $('#lista tbody tr', site).length != 50 ) { // avoids getting only 15 items per page
+        await page.waitFor(2000);
+        await page.waitForSelector('select.form-control');
+        await page.select('select.form-control', '50');
+        site = await page.content();
+    }
+    delete site;
 
     var pages = 1;
     var size = 0;
     
-    while (true) {
-        await page.waitFor(3000);
-        const next_button = '#lista_next';
-        await page.waitForSelector(next_button);
+    while ( true ) {
+        let html = '';
+        let list = [];
+        while( ($('#lista_next', html).length == 0) && (list.length == 0) ) {  // avoids pages not fully loaded
+            await page.waitFor(2000);            
+            html = await page.content();
+            list = await scrape_page(html);
+        }
 
-        var html = await page.content();
-        var list = await scrape_page(html);
-        
         let filename = year + '_' + 'page' + pages;
         save_json_file(list, filename);
         
@@ -73,14 +79,12 @@ async function get_from_date(year) {
         console.log(pages + ' - ' + size);
         pages += 1;
 
-        const next_flag = await $(next_button, html).hasClass('disabled');
+        const next_flag = $('#lista_next', html).hasClass('disabled');
        
-        if ((!next_flag) && (pages < 8000)) {
+        if (!next_flag) {
             try {
-                await page.click(next_button + ' > a:nth-child(1)');
+                await page.click('#lista_next a');
             } catch (error) {
-                await page.waitFor(15000); // wait for another 15 seconds and try once more
-                await page.click(next_button + ' > a:nth-child(1)');
                 console.log(error);
             }
         } else { break; }
