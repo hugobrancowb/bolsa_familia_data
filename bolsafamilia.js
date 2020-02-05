@@ -16,9 +16,9 @@ async function main() {
     
     for (let i = 0; i < year.length; i++) {
         console.log('Ano: '+ year[i]); // pode apagar
-        console.time('tempo total: ' + '_' + year[i]);
+        console.time('tempo total: ' + year[i]);
         await get_from_date(year[i]); // returns a list of entries from the pages
-        console.timeEnd('tempo total: ' + '_' + year[i]);
+        console.timeEnd('tempo total: ' + year[i]);
     }
 }
 
@@ -37,8 +37,8 @@ async function get_from_date(year) {
     const url = 'http://www.portaldatransparencia.gov.br/beneficios/consulta?paginacaoSimples=true&tamanhoPagina=&offset=&direcaoOrdenacao=asc&de=01%2F01%2F' + year + '&ate=31%2F12%2F' + year + '&tipoBeneficio=1&colunasSelecionadas=linkDetalhamento%2ClinguagemCidada%2CmesAno%2Cuf%2Cmunicipio%2Cvalor&ordenarPor=mesAno&direcao=desc';
 
     const browser = await puppeteer.launch({
-        slowMo: 10, // delays requests, preventing host to block puppeteer
-        headless: false // shows browser window
+        //headless: false, // shows browser window
+        slowMo: 10 // delays requests, preventing host to block puppeteer
     });
 
     const page = await browser.newPage();
@@ -51,12 +51,16 @@ async function get_from_date(year) {
         console.log(error);
     }
 
+    await page.waitFor(10000);
+    await page.waitForSelector('select.form-control');
+    await page.select('select.form-control', '50');
+
     var pages = 1;
     var size = 0;
     
     while (true) {
         await page.waitFor(3000);
-        const next_button = '#lista_paginate ul.pagination > li:nth-child(2)';
+        const next_button = '#lista_next';
         await page.waitForSelector(next_button);
 
         var html = await page.content();
@@ -71,10 +75,12 @@ async function get_from_date(year) {
 
         const next_flag = await $(next_button, html).hasClass('disabled');
        
-        if ((!next_flag) && (pages < 5000)) {
+        if ((!next_flag) && (pages < 8000)) {
             try {
-                await page.click(next_button + ' a');
+                await page.click(next_button + ' > a:nth-child(1)');
             } catch (error) {
+                await page.waitFor(15000); // wait for another 15 seconds and try once more
+                await page.click(next_button + ' > a:nth-child(1)');
                 console.log(error);
             }
         } else { break; }
@@ -91,7 +97,7 @@ async function scrape_page(html) {
 
     lista = []
     
-    for (let i = 0; i < state.length; i++) {
+    for (let i = 0; i < state.length; i++) {    
         y_temp = $(year[i]).text();
         y_temp = y_temp.split("/");        
         t_temp = $(total[i]).text();
