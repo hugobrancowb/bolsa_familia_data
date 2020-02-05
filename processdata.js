@@ -5,20 +5,24 @@ var jsonContent = JSON.parse(contents);
 var lista_year = [];
 
 jsonContent.forEach(el => {
-    let entry = {...el}; // copy elements
 
-    let i = lista_year.findIndex( obj => (obj.uf == entry.uf) && (obj.year == entry.year) );
-    
-    /* select and sum same year and state */
-    if (i == -1) {
-        delete entry.city; // won't be using city in this context. might as well delete it.
+    let t = el.total;
+    let y = el.year.split('/');
+    let entry = {
+        total: parseFloat(t),
+        year: parseInt(y[1])
+    };
+
+    let j = lista_year.findIndex( obj => obj.year == entry.year );
+
+    if (j == -1) { // if year doesn't exist, add it as new element to the array
         lista_year.push(entry);
-    } else {
-        lista_year[i].total += entry.total;
+    } else { // if year already exists, sum it to the current value
+        lista_year[j].total += entry.total;
     }
 });
 
-save_json_file(lista_year, 'data_per_state_year');
+save_json_file(lista_year, 'data_per_year');
 
 /* same function as in bolsafamilia.js */
 function save_json_file(list, name) {

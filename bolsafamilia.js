@@ -12,7 +12,7 @@ function Entry_data(year, uf, city, total) {
 
 /* Functions */
 async function main() {
-    var year = ['2018']; // all years which data will be gathered from
+    var year = ['2017']; // all years which data will be gathered from
     
     for (let i = 0; i < year.length; i++) {
         console.log('Ano: '+ year[i]); // pode apagar
@@ -98,12 +98,10 @@ async function scrape_page(html) {
     lista = []
     
     for (let i = 0; i < state.length; i++) {    
-        y_temp = $(year[i]).text();
-        y_temp = y_temp.split("/");        
         t_temp = $(total[i]).text();
         t_temp = t_temp.substring(0, t_temp.length - 3).replace(".", "");
         
-        const y = y_temp[1];
+        const y = $(year[i]).text();
         const s = $(state[i]).text();
         const c = $(city[i]).text();
         const t = parseFloat(t_temp);
