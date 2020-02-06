@@ -101,15 +101,11 @@ async function scrape_page(html) {
 
     lista = []
     
-    for (let i = 0; i < state.length; i++) {    
-        t_temp = $(total[i]).text();
-        t_temp = t_temp.substring(0, t_temp.length - 3).replace(".", "");
-        
+    for (let i = 0; i < state.length; i++) {            
         const y = $(year[i]).text();
         const s = $(state[i]).text();
         const c = $(city[i]).text();
-        const t = parseFloat(t_temp);
-
+        const t = $(total[i]).text();
         lista.push(new Entry_data(y, s, c, t));
     }
     
