@@ -24,6 +24,7 @@ async function main() {
 
 function save_json_file(list, name) {
     var jsonData = JSON.stringify(list);
+    jsonData = jsonData.replace(/\},/g, "},\n");
     var fs = require('fs');
     
     fs.writeFile("data/raw/" + name + ".json", jsonData, function(err) {

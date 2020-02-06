@@ -27,6 +27,7 @@ save_json_file(lista_year, 'data_per_year');
 /* same function as in bolsafamilia.js */
 function save_json_file(list, name) {
     var jsonData = JSON.stringify(list);
+    jsonData = jsonData.replace(/\},/g, "},\n");
     var fs = require('fs');
     fs.writeFile("data/" + name + ".json", jsonData, function(err) {
         if (err) {

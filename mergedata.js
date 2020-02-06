@@ -14,7 +14,7 @@ fs.readdirSync(dir).forEach(arq => {
 
 files.map(el => {
     var contents = fs.readFileSync(dir + el);
-    var jsonContent = JSON.parse(contents); // there's 15 items in this object
+    var jsonContent = JSON.parse(contents); // there's 15 or 50 items in this object
 
     jsonContent.map(entry => {
         if (alldata.length > 0) {
@@ -39,16 +39,17 @@ files.map(el => {
     });
 });
 
-save_json_file(alldata, '../alldata');
+save_json_file(alldata, 'alldata');
 console.log('itens: ' + count);
 console.log('repetidos: ' + repeat);
 
 /* Functions */
 function save_json_file(list, name) {
-    var jsonData = JSON.stringify(list);
-    var fs = require('fs');
+    let jsonData = JSON.stringify(list);
+    jsonData = jsonData.replace(/\},/g, "},\n");
+    let fs = require('fs');
     
-    fs.writeFile("data/raw/" + name + ".json", jsonData, function(err) {
+    fs.writeFile("data/" + name + ".json", jsonData, function(err) {
         if (err) {
             console.log(err);
         }
