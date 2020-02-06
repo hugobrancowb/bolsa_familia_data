@@ -6,10 +6,13 @@ var lista_year = [];
 
 jsonContent.forEach(el => {
 
-    let t = el.total;
+    let t = el.total.replace(/[.]/g, "");
+    t = t.replace(/[,]/g, ".");
     let y = el.year.split('/');
     let entry = {
-        total: parseFloat(t),
+        uf: el.uf,
+        total: parseFloat(t),  
+        month: parseInt(y[0]),      
         year: parseInt(y[1])
     };
 
