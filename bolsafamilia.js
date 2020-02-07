@@ -12,7 +12,7 @@ function Entry_data(year, uf, city, total) {
 
 /* Functions */
 async function main() {
-    var year = ['2017']; // all years which data will be gathered from
+    var year = ['2015', '2014']; // all years which data will be gathered from
     
     for (let i = 0; i < year.length; i++) {
         console.log('Ano: '+ year[i]); // pode apagar
@@ -38,7 +38,8 @@ async function get_from_date(year) {
     const url = 'http://www.portaldatransparencia.gov.br/beneficios/consulta?paginacaoSimples=true&tamanhoPagina=&offset=&direcaoOrdenacao=asc&de=01%2F01%2F' + year + '&ate=31%2F12%2F' + year + '&tipoBeneficio=1&colunasSelecionadas=linkDetalhamento%2ClinguagemCidada%2CmesAno%2Cuf%2Cmunicipio%2Cvalor&ordenarPor=mesAno&direcao=desc';
 
     const browser = await puppeteer.launch({
-        //headless: false, // shows browser window
+        // headless: false, // shows browser window
+        'defaultViewport' : { 'width': 1440, 'height': 800 },
         slowMo: 10 // delays requests, preventing host to block puppeteer
     });
 
@@ -53,45 +54,73 @@ async function get_from_date(year) {
     }
 
     let site = await page.content();
-    while( $('#lista tbody tr', site).length != 50 ) { // avoids getting only 15 items per page
+    // shows pagination numbers
+    await page.waitFor(2000);
+    await page.waitForSelector('div.botao__gera_paginacao_completa');
+    await page.click('div.botao__gera_paginacao_completa');
+    await page.waitForSelector('#lista tr.even', {visible: true, timeout: 30000});
+    site = await page.content();
+    
+    let handle = [];
+    while( handle.length < 50 ) { // avoids getting only 15 items per page
         await page.waitFor(2000);
-        await page.waitForSelector('select.form-control');
+        await page.waitForSelector('select.form-control', {visible: true, timeout: 90000});
         await page.select('select.form-control', '50');
+        await page.waitForSelector('#lista tbody tr', {visible: true, timeout: 90000});
         site = await page.content();
+        handle = await page.$$('#lista tbody tr', site);
     }
     delete site;
+    delete handle;
 
-    var pages = 1;
     var size = 0;
     
     while ( true ) {
         let html = '';
         let list = [];
-        while( ($('#lista_next', html).length == 0) && (list.length == 0) ) {  // avoids pages not fully loaded
-            await page.waitFor(2000);            
+        let pagefield = [];
+        while( (pagefield.length != 1) || (list.length == 0) ) {  // avoids pages not fully loaded
+            await page.waitForSelector('#lista tbody tr', {visible: true, timeout: 90000});
+            await page.waitFor(500);
             html = await page.content();
             list = await scrape_page(html);
+            pagefield = await page.$$('#paginas-selecao-1-lista', html);
+        }
+
+        /* clean and format page numbers */
+        let p = await $('div#lista_info', html);
+        let ps = p.text().split(" ");
+        let pv = ps.map(e => e.replace(/[.]/g, ""));
+        let pages = parseInt(pv[1]);
+    
+        /* define max number of pages */
+        if (typeof pagemax === 'undefined') {
+            var pagemax = parseInt(pv[3]);
         }
 
         let filename = year + '_' + 'page' + pages;
-        save_json_file(list, filename);
+        save_json_file(list, filename); // saves file
         
         size += list.length;
         console.log(pages + ' - ' + size);
-        pages += 1;
-
-        const next_flag = $('#lista_next', html).hasClass('disabled');
-       
-        if (!next_flag) {
-            try {
-                await page.click('#lista_next a');
-            } catch (error) {
-                console.log(error);
+        
+        /* if it's not the last page... */
+        if(pages < pagemax) {
+            await page.focus('#paginas-selecao-1-lista');
+            for (let index = 0; index < 4; index++) {                
+                await page.keyboard.press('Backspace');
             }
-        } else { break; }
+            let n = pages + 1;
+            let s = n.toString();
+            await page.keyboard.type(s);
+            await page.waitFor(500);
+            await page.click('#botao-ir-para-a-pagina-lista');
+        } else {
+            break;
+        }
     }
 
-    browser.close();
+    await browser.close();
 }
 
 async function scrape_page(html) {
