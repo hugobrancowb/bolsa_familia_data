@@ -1,4 +1,4 @@
-# bolsa_familia_data
+# bolsa_familia_data (work in progress)
 Data scraping Brazil's Portal da Transparencia website.
 
 ## Setup
@@ -12,7 +12,7 @@ npm install puppeteer cheerio
 ```bash
 node bolsafamilia.js
 ```
-This script saves 15 entries in each `.json` file into `data/raw/` folder.
+This script saves multiple 50 entries `.json` files into `data/raw/` folder accordingly to its year.
 
 ### Merge the data
 ```bash
