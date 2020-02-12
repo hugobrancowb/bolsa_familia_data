@@ -4,7 +4,6 @@ var contents = fs.readFileSync("data/alldata.json");
 var jsonContent = JSON.parse(contents);
 var lista_estados_year = [];
 var lista_year = [];
-var dezembros = []
 var count = 1;
 
 jsonContent.forEach(el => {
@@ -21,12 +20,6 @@ jsonContent.forEach(el => {
 
     let entry2 = {
         total: parseFloat(t),  
-        year: parseInt(y[1])
-    };
-    
-    let entry3 = {
-        total: parseFloat(t),  
-        month: parseInt(y[0]),
         year: parseInt(y[1])
     };
 
@@ -46,16 +39,6 @@ jsonContent.forEach(el => {
         lista_year.push(entry2);
     } else { // if year already exists, sum it to the current value
         lista_year[j].total += entry2.total;
-    }
-
-    /* ARRAY: pagamentos para o país inteiro a cada dezembro/ano */
-    if (entry3.month == 12) {
-        let k = dezembros.findIndex( obj => (obj.year == entry3.year) );
-        if (k == -1) { // if year doesn't exist, add it as new element to the array
-            dezembros.push(entry3);
-        } else { // if year already exists, sum it to the current value
-            dezembros[k].total += entry3.total;
-        }
     }
     
     console.log(count + '/467826');
@@ -95,7 +78,6 @@ lista_estados_year.map(e => {
 save_json_file(lista_estados_year, 'data_per_estado_2019');
 save_json_file(lista_year, 'data_per_year');
 save_json_file(regioes_2019, 'regioes_2019');
-save_json_file(dezembros, 'dezembros_anos');
 
 /* same function as in bolsafamilia.js */
 function save_json_file(list, name) {

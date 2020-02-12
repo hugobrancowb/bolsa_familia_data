@@ -12,7 +12,7 @@ function Entry_data(year, uf, city, total) {
 
 /* Functions */
 async function main() {
-    var year = ['2015', '2014']; // all years which data will be gathered from
+    var year = ['2019', '2018', '2017', '2016', '2015', '2014', '2013']; // all years which data will be gathered from
     
     for (let i = 0; i < year.length; i++) {
         console.log('Ano: '+ year[i]); // pode apagar
