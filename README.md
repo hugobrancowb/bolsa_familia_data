@@ -20,8 +20,8 @@ node mergedata.js
 ```
 This script merges all `.json` files from `data/raw/` folder into a single one called `alldata.json`.
 
-### Plots
+### Filtered data
 ```bash
 node processdata.js
 ```
-This script creates plots using `alldata.json`.
+This script sorts and filters `alldata.json` into 3 other files: `data_per_estado_2019`, `data_per_year`, and `regioes_2019`.
