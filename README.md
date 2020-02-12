@@ -1,5 +1,5 @@
-# bolsa_familia_data (work in progress)
-Data scraping Brazil's Portal da Transparencia website.
+# Bolsa_Familia_Data
+Data scraping from Brazil's Portal da Transparencia website.
 
 ## Setup
 ```bash
