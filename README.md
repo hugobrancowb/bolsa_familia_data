@@ -1,7 +1,7 @@
 # MINERAÇÃO DE DADOS DO PORTAL DA TRANSPARÊNCIA
 Códigos em JavaScript utilizados para minerar dados do Portal da Transparência referentes aos repasses do Programa Bolsa Família entre os anos de 2013 e 2019.
 
-No Portal da Transparência, os repasses são exibidos em tabelas de, no máximo, 50 linhas por página mas o fato de que o conteúdo é carregado através de eventos de JavaScript torna o processo de mineração automatizada muito mais complicado.
+No Portal da Transparência, os repasses são exibidos em tabelas de, no máximo, 50 linhas por página mas o fato de que o conteúdo é carregado através de eventos de JavaScript torna o processo de mineração automatizada muito mais complicado. Mais informações sobre o projeto encontram-se no [meu portfólio](https://hugobrancowb.github.io/).
 
 ## Setup
 ```bash
