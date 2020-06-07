@@ -1,5 +1,8 @@
-# Bolsa_Familia_Data
-Data scraping from Brazil's Portal da Transparencia website.
+# MINERAÇÃO DE DADOS DO PORTAL DA TRANSPARÊNCIA
+
+Códigos em JavaScript utilizados para minerar dados do Portal da Transparência referentes aos repasses do Programa Bolsa Família entre os anos de 2013 e 2019.
+
+No Portal da Transparência, os repasses são exibidos em tabelas de, no máximo, 50 linhas por página mas o fato de que o conteúdo é carregado através de eventos de JavaScript torna o processo de mineração automatizada muito mais complicado.
 
 ## Setup
 ```bash
@@ -25,3 +28,6 @@ This script merges all `.json` files from `data/raw/` folder into a single one c
 node processdata.js
 ```
 This script sorts and filters `alldata.json` into 3 other files: `data_per_estado_2019`, `data_per_year`, and `regioes_2019`.
+
+## Keywords
+Javascript, Data Mining, Mineração de Dados, Bolsa Família
